@@ -1,44 +1,55 @@
     package com.lethsmarketenterprise.lethsmarket.firebaseinteractor;
 
+    import android.util.Log;
+
     import androidx.annotation.NonNull;
     import androidx.lifecycle.LiveData;
     import androidx.lifecycle.MutableLiveData;
 
+    import com.google.android.gms.tasks.OnFailureListener;
+    import com.google.android.gms.tasks.OnSuccessListener;
+    import com.google.firebase.firestore.DocumentChange;
+    import com.google.firebase.firestore.DocumentReference;
+    import com.google.firebase.firestore.DocumentSnapshot;
+    import com.google.firebase.firestore.FirebaseFirestore;
+    import com.google.firebase.firestore.FirebaseFirestoreException;
+    import com.google.firebase.firestore.Query;
+    import com.google.firebase.firestore.QuerySnapshot;
     import com.lethsmarketenterprise.lethsmarket.models.Product;
     import com.google.firebase.auth.FirebaseAuth;
     import com.google.firebase.auth.FirebaseUser;
-    import com.google.firebase.database.DataSnapshot;
-    import com.google.firebase.database.DatabaseError;
-    import com.google.firebase.database.DatabaseReference;
-    import com.google.firebase.database.ValueEventListener;
     import com.lethsmarketenterprise.lethsmarket.models.User;
 
     import java.util.ArrayList;
     import java.util.List;
 
-    public class FirebaseInteractorImpl extends BaseFirebaseInteractor implements FirebaseInteractor {
-
-
+    public class FirebaseInteractorImpl implements FirebaseInteractor {
+        private FirebaseFirestore firestore;
+        private FirebaseAuth auth;
+        public FirebaseInteractorImpl() {
+            firestore = FirebaseFirestore.getInstance();
+            auth = FirebaseAuth.getInstance();
+        }
         @Override
         public void createUser(User user) {
-            DatabaseReference userRef = database.child("users").child(user.getUserId());
-            userRef.setValue(user);
+            firestore.collection("users").document(user.getUserId()).set(user);
         }
         @Override
         public void checkUserExists(String idUser, FirebaseCallback callback) {
-            DatabaseReference userRef = database.child("users").child(idUser);
-            userRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    boolean userExists = dataSnapshot.exists();
-                    callback.onSuccess(userExists);
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                    callback.onFailure(databaseError.getMessage());
-                }
-            });
+            firestore.collection("users").document(idUser).get()
+                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                        @Override
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            boolean userExists = documentSnapshot.exists();
+                            callback.onSuccess(userExists);
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            callback.onFailure(e.getMessage());
+                        }
+                    });
         }
 
         public String getCurrentUserId() {
@@ -49,40 +60,57 @@
                 return null;
             }
         }
+
        // ** Products ***********
        public LiveData<List<Product>> listProducts() {
-            MutableLiveData<List<Product>> productListLiveData = new MutableLiveData<>();
+           MutableLiveData<List<Product>> productListLiveData = new MutableLiveData<>();
 
-            String currentUserId = getCurrentUserId();
-            DatabaseReference productsRef = database.child("users").child(currentUserId).child("products");
-            productsRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    List<Product> listProduct = new ArrayList<>();
-                    for(DataSnapshot productSnapshot : snapshot.getChildren()){
-                        Product product = productSnapshot.getValue(Product.class);
-                        listProduct.add(product);
-                    }
-                    productListLiveData.postValue(listProduct);
-                }
+           String currentUserId = getCurrentUserId();
+           firestore.collection("users").document(currentUserId)
+                   .collection("products")
+                   .addSnapshotListener(new com.google.firebase.firestore.EventListener<QuerySnapshot>() {
+                       @Override
+                       public void onEvent(QuerySnapshot querySnapshot, FirebaseFirestoreException e) {
+                           if (e != null) {
+                               productListLiveData.postValue(null);
+                               return;
+                           }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                    productListLiveData.postValue(null);
-                }
-            });
+                           List<Product> listProduct = new ArrayList<>();
+                           for (DocumentSnapshot documentSnapshot : querySnapshot.getDocuments()) {
+                               Product product = documentSnapshot.toObject(Product.class);
+                               listProduct.add(product);
+                           }
+                           Log.d("ProductData", "Products: " + listProduct);
 
-            return productListLiveData;
-        }
+                           productListLiveData.postValue(listProduct);
+                       }
+                   });
+
+           return productListLiveData;
+       }
+
+
+
+
 
         public LiveData<Boolean> insertProduct(Product product) {
             MutableLiveData<Boolean> insertSuccessLiveData = new MutableLiveData<>();
-            String productId = database.push().getKey();
-            product.setIdProduct(productId);
 
-            database.child("users").child(getCurrentUserId()).child("products").child(productId).setValue(product)
-                    .addOnSuccessListener(e -> insertSuccessLiveData.postValue(true))
-                    .addOnFailureListener(e -> insertSuccessLiveData.postValue(false));
+            firestore.collection("users").document(getCurrentUserId())
+                    .collection("products").add(product)
+                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                        @Override
+                        public void onSuccess(DocumentReference documentReference) {
+                            insertSuccessLiveData.postValue(true);
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            insertSuccessLiveData.postValue(false);
+                        }
+                    });
 
             return insertSuccessLiveData;
         }
