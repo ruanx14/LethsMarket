@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/nav_statistic">
+
+    <fragment
+        android:id="@+id/nav_new_sale"
+        android:name="com.lethsmarketenterprise.lethsmarket.view.fragments.NewSaleFragment"
+        android:label="@string/menu_new_sale"
+        tools:layout="@layout/fragment_new_sale" />
+    <fragment
+        android:id="@+id/nav_products"
+        android:name="com.lethsmarketenterprise.lethsmarket.view.fragments.ProductsFragment"
+        android:label="@string/menu_products"
+        tools:layout="@layout/fragment_products" />
+    <fragment
+        android:id="@+id/nav_fiados"
+        android:name="com.lethsmarketenterprise.lethsmarket.view.fragments.FiadosFragment"
+        android:label="@string/menu_fiados"
+        tools:layout="@layout/fragment_fiados" />
+
+    <fragment
+        android:id="@+id/nav_historic"
+        android:name="com.lethsmarketenterprise.lethsmarket.view.fragments.HistoricFragment"
+        android:label="@string/menu_historic"
+        tools:layout="@layout/fragment_historic" />
+
+    <fragment
+        android:id="@+id/nav_statistic"
+        android:name="com.lethsmarketenterprise.lethsmarket.view.fragments.StatisticFragment"
+        android:label="@string/menu_statistics"
+        tools:layout="@layout/fragment_statistic" />
+
+    <fragment
+        android:id="@+id/nav_settings"
+        android:name="com.lethsmarketenterprise.lethsmarket.view.fragments.SettingsFragment"
+        android:label="@string/menu_settings"
+        tools:layout="@layout/fragment_settings" />
+
+    <fragment
+        android:id="@+id/nav_logout"
+        android:name="com.lethsmarketenterprise.lethsmarket.view.fragments.LogoutFragment"
+        android:label="@string/idLogout"
+        tools:layout="@layout/fragment_logout" />
+
+</navigation>

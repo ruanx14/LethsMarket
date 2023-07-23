@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingBottom="2dp"
+        android:background="@drawable/border_list_item"
+        tools:context=".view.fragments.ProductsFragment"
+    >
+
+
+        <EditText
+            android:id="@+id/editTextText"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:background="@android:drawable/editbox_background"
+            android:ems="10"
+            android:hint="Pesquise"
+            android:inputType="text"
+            android:outlineProvider="bounds"
+            android:textSize="16dp"
+            app:layout_constraintEnd_toStartOf="@+id/btnSearchProduct"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewProducts"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextText"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <Button
+            android:id="@+id/btnSearchProduct"
+            android:layout_width="85dp"
+            android:layout_height="40dp"
+            android:background="#FFFFFF"
+            android:drawablePadding="50dp"
+            app:icon="@android:drawable/ic_search_category_default"
+            app:iconSize="30dp"
+            app:iconTint="@color/ic_lethsmarket_background"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:strokeColor="#CF00E6"
+            app:strokeWidth="1dp" />
+
+        <!-- FrameLayout para agrupar o FloatingActionButton e o TextView -->
+        <FrameLayout
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginEnd="30dp"
+            android:layout_marginBottom="30dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <!-- TextView para adicionar o texto -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:elevation="10dp"
+                android:fontFamily="@font/almendra"
+                android:gravity="center_horizontal|center_vertical"
+                android:text="Novo Produto"
+                android:textAlignment="gravity"
+                android:textColor="@color/material_dynamic_neutral10"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <!-- FloatingActionButton -->
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fabNewProduct"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clickable="true"
+                app:backgroundTint="@android:color/holo_purple" />
+
+        </FrameLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>

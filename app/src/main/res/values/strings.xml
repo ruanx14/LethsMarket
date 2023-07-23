@@ -1,0 +1,28 @@
+<resources>
+    <string name="app_name">LethsMarket</string>
+    <string name="title_activity_home">Home</string>
+    <string name="title_main_activity">Main Activity</string>
+    <string name="title_activity_create_product">CreateProductActivity</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="nav_header_title">Incomplete</string>
+    <string name="nav_header_subtitle">Bem vindo</string>
+    <string name="nav_header_desc">Navigation header</string>
+
+    <string name="menu_new_sale">Nova Venda</string>
+    <string name="menu_products">Produtos</string>
+    <string name="menu_fiados">Fiados</string>
+    <string name="menu_historic">Historico</string>
+    <string name="menu_statistics">Estatistica</string>
+    <string name="menu_settings">Configuração</string>
+    <string name="idLogout">Sair</string>
+
+    <string name="action_settings">Settings</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+
+</resources>
