@@ -1,5 +1,6 @@
 package com.lethsmarketenterprise.lethsmarket.view.adapters;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.lethsmarketenterprise.lethsmarket.R;
 import com.lethsmarketenterprise.lethsmarket.models.Product;
+import com.lethsmarketenterprise.lethsmarket.view.activities.CreateProductActivity;
 
 import java.util.List;
 
@@ -39,6 +41,14 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.MyViewHo
         holder.textViewName.setText(product.getName());
         holder.textViewBrand.setText(product.getBrand());
         holder.textViewPriceSell.setText(product.getPriceSell());
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(view.getContext(), CreateProductActivity.class);
+                intent.putExtra("idProduct", product.getIdProduct());
+                view.getContext().startActivity(intent);
+            }
+        });
     }
 
     @Override
@@ -52,6 +62,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.MyViewHo
         TextView textViewPriceSell;
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
+
             textViewName = itemView.findViewById(R.id.textViewName);
             textViewBrand = itemView.findViewById(R.id.textViewBrand);
             textViewPriceSell = itemView.findViewById(R.id.textViewPriceSell);

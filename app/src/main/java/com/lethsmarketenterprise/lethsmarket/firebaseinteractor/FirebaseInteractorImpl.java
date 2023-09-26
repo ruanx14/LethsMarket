@@ -61,70 +61,132 @@
             }
         }
 
-       // ** Products ***********
-       public LiveData<List<Product>> listProducts() {
-           MutableLiveData<List<Product>> productListLiveData = new MutableLiveData<>();
-
+       // ** Products ********
+       public void listProducts(FirebaseCallback callback) {
            String currentUserId = getCurrentUserId();
            firestore.collection("users").document(currentUserId)
                    .collection("products")
-                   .addSnapshotListener(new com.google.firebase.firestore.EventListener<QuerySnapshot>() {
+                   .get()
+                   .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                        @Override
-                       public void onEvent(QuerySnapshot querySnapshot, FirebaseFirestoreException e) {
-                           if (e != null) {
-                               productListLiveData.postValue(null);
-                               return;
-                           }
-
+                       public void onSuccess(QuerySnapshot querySnapshot) {
                            List<Product> listProduct = new ArrayList<>();
                            for (DocumentSnapshot documentSnapshot : querySnapshot.getDocuments()) {
                                Product product = documentSnapshot.toObject(Product.class);
+                               product.setIdProduct(documentSnapshot.getId());
                                listProduct.add(product);
                            }
-                           Log.d("ProductData", "Products: " + listProduct);
-
-                           productListLiveData.postValue(listProduct);
+                           callback.onSuccess(listProduct);
+                       }
+                   })
+                   .addOnFailureListener(new OnFailureListener() {
+                       @Override
+                       public void onFailure(@NonNull Exception e) {
+                           callback.onFailure(e.getMessage());
                        }
                    });
-
-           return productListLiveData;
        }
-
-
-
-
-
-        public LiveData<Boolean> insertProduct(Product product) {
-            MutableLiveData<Boolean> insertSuccessLiveData = new MutableLiveData<>();
-
+        public void insertProduct(FirebaseCallback callback,Product product) {
             firestore.collection("users").document(getCurrentUserId())
                     .collection("products").add(product)
                     .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                         @Override
                         public void onSuccess(DocumentReference documentReference) {
-                            insertSuccessLiveData.postValue(true);
+                            String documentId = documentReference.getId();
+                            product.setIdProduct(documentId);
+                            callback.onSuccess(true);
+                             /*firestore.collection("users").document(getCurrentUserId())
+                                    .collection("products").document(documentId)
+                                    .set(product)
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            insertSuccessLiveData.postValue(true);
+                                            // Produto adicionado com sucesso com o campo documentId
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            // Lidar com falha na atualização do documento
+                                        }
+                                    });*/
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            insertSuccessLiveData.postValue(false);
+                            callback.onFailure(e.getMessage());
                         }
                     });
-
-            return insertSuccessLiveData;
         }
-
+        public void getProductById(FirebaseCallback callback, String idProduct) {
+            firestore.collection("users").document(getCurrentUserId())
+                    .collection("products").document(idProduct)
+                    .get()
+                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                        @Override
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            Product product = documentSnapshot.toObject(Product.class);
+                            if (product != null) {
+                                product.setIdProduct(documentSnapshot.getId());
+                                callback.onSuccess(product);
+                            } else {
+                                callback.onFailure("Product not found.");
+                            }
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            callback.onFailure(e.getMessage());
+                        }
+                    });
+        }
+        @Override
+        public void updateProduct(FirebaseCallback callback, Product product) {
+            String currentUserId = getCurrentUserId();
+            firestore.collection("users")
+                    .document(currentUserId)
+                    .collection("products")
+                    .document(product.getIdProduct())
+                    .set(product)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            callback.onSuccess(true);
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            callback.onFailure(e.getMessage());
+                        }
+                    });
+        }
         @Override
         public void removeProduct() {
+            /*
+            String currentUserId = getCurrentUserId();
 
+            firestore.collection("users")
+                .document(currentUserId)
+                .collection("products")
+                .document(productId)
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        callback.onSuccess(true);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        callback.onFailure(e.getMessage());
+                    }
+            });
+
+             */
         }
-
-        @Override
-        public void editProduct() {
-
-        }
-
-
-
     }

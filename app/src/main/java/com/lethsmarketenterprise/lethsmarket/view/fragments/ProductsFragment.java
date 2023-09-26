@@ -48,10 +48,9 @@ public class ProductsFragment extends Fragment{
         recyclerViewProducts.setAdapter(productAdapter);
         productViewModel.getProductsLiveData().observe(getViewLifecycleOwner(), products -> {
             for (Product product : products) {
-                Log.d("ProductData", "Products: " + products.toString());
+                //Log.d("ProductData", "Products: " + products.toString());
                 productAdapter.setData(products);
             }
-            productAdapter.setData(products);
         });
 
 
@@ -66,8 +65,6 @@ public class ProductsFragment extends Fragment{
 
         return root;
     }
-
-
 
     @Override
     public void onDestroyView() {

@@ -19,7 +19,7 @@
             android:background="@android:color/holo_purple">
 
             <TextView
-                android:id="@+id/textView5"
+                android:id="@+id/textViewProductEngine"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-medium"

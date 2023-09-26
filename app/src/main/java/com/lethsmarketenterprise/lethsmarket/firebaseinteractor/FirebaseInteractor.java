@@ -10,9 +10,11 @@ import java.util.List;
 public interface FirebaseInteractor {
     void checkUserExists(String idUser, FirebaseCallback callback);
     void createUser(User user);
-    LiveData<List<Product>> listProducts();
-    LiveData<Boolean> insertProduct(Product product);
+    void listProducts(FirebaseCallback callback);
+    void insertProduct(FirebaseCallback callback, Product product);
+    void getProductById(FirebaseCallback callback, String idProduct);
+    void updateProduct(FirebaseCallback callback, Product product);
     void removeProduct();
-    void editProduct();
+
 
 }

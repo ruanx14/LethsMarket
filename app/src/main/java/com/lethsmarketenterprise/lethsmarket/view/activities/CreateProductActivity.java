@@ -6,9 +6,11 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.lethsmarketenterprise.lethsmarket.R;
 import com.lethsmarketenterprise.lethsmarket.databinding.ActivityCreateProductBinding;
@@ -21,48 +23,89 @@ public class CreateProductActivity extends AppCompatActivity {
 
 private ActivityCreateProductBinding binding;
     ProductViewModel productViewModel;
-
+    private boolean isEditing = false;
+    private String idProduct;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityCreateProductBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-
         Button insertButton = findViewById(R.id.buttonInsertProduct);
         insertButton.setOnClickListener(view -> onFormSubmit());
 
         productViewModel = new ViewModelProvider(this).get(ProductViewModel.class);
-
-
-
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null) {
             Intent intent = new Intent(CreateProductActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
         }
+
+
+        //Edit
+        idProduct = getIntent().getStringExtra("idProduct");
+        if (idProduct != null) {
+            isEditing = true;
+            productViewModel.getProductById(idProduct).observe(this, new Observer<Product>() {
+                @Override
+                public void onChanged(Product product) {
+                    binding.textInputName.setText(product.getName());
+                    binding.textInputCategory.setText(product.getCategory());
+                    binding.textInputQuantity.setText(product.getQuantity());
+                    binding.textInputPriceSell.setText(product.getPriceSell());
+                    binding.textInputPriceBought.setText(product.getPriceBought());
+                    binding.textInputValidity.setText(product.getValidity());
+                    binding.textInputBrand.setText(product.getBrand());
+                    binding.textInputCommentProduct.setText(product.getComment());
+                    binding.textViewProductEngine.setText("Editar produto");
+                    binding.buttonInsertProduct.setText("Salvar alteração");
+                }
+            });
+        }
+
     }
     private void onFormSubmit() {
-        String name = binding.textInputName.getText().toString();
-        String category = binding.textInputCategory.getText().toString();
-        String quantity = binding.textInputQuantity.getText().toString();
-        String priceSell = binding.textInputPriceSell.getText().toString();
-        String priceBought = binding.textInputPriceBought.getText().toString();
-        String validity = binding.textInputValidity.getText().toString();
-        String brand = binding.textInputBrand.getText().toString();
-        String commentProduct = binding.textInputCommentProduct.getText().toString();
-        Product product = new Product("null", name, category, quantity, priceSell, priceBought, validity, brand, commentProduct);
+        Product product = new Product();
+        product.setName(binding.textInputName.getText().toString());
+        product.setCategory(binding.textInputCategory.getText().toString());
+        product.setQuantity(binding.textInputQuantity.getText().toString());
+        product.setPriceSell(binding.textInputPriceSell.getText().toString());
+        product.setPriceBought(binding.textInputPriceBought.getText().toString());
+        product.setValidity(binding.textInputValidity.getText().toString());
+        product.setBrand(binding.textInputBrand.getText().toString());
+        product.setComment(binding.textInputCommentProduct.getText().toString());
+        product.setIdProduct(idProduct);
+        //Product product = new Product("null", name, category, quantity, priceSell, priceBought, validity, brand, commentProduct);
+        if(isEditing){
+            productViewModel.updateProduct(product).observe(this, isSuccess -> {
+               if(isSuccess){
+                   AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                   builder.setMessage("Edição salva com sucesso")
+                           .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                               public void onClick(DialogInterface dialog, int id) {
+                                   dialog.dismiss();
+                                   startActivity(new Intent(CreateProductActivity.this, HomeActivity.class));
 
-        productViewModel.insertProduct(product).observe(this, isSuccess -> {
-            if (isSuccess) {
-                clearFields();
-                showAddMoreConfirmationDialog();
-            } else {
-                // Falha na inserção
-            }
-        });
+                               }
+                           });
+                   AlertDialog dialog = builder.create();
+                   dialog.show();
+                   //Toast.makeText(this, "Edição feita com sucesso", Toast.LENGTH_SHORT).show();
+               }else{
 
+               }
+            });
+        }else {
+            productViewModel.insertProduct(product).observe(this, isSuccess -> {
+                if (isSuccess) {
+                    clearFields();
+                    showAddMoreConfirmationDialog();
+                } else {
+                    // Falha na inserção
+                }
+            });
+        }
     }
     private void clearFields() {
         binding.textInputName.setText("");
